@@ -1,6 +1,32 @@
-#homepageMenu {
-    display: flex;
+body {
+    margin: 0px;
+    background-color: #5c5c5c;
+    font-family:  Verdana, Geneva, Tahoma, sans-serif;
 }
-#homepageMenu > div {
-    width:50%;
+
+a {
+    color: #e2e2e2;
+    text-decoration: none;
+}
+header {
+    background-color: #2e2e2e;
+    padding: 15px;
+    text-align: center;
+    font-size: 3em;
+}
+
+#homepageMenu {
+    display: grid;
+    grid-template-columns: 33% 17% 17% 33%;
+    padding: 275px 0px;
+    height: 100%;
+}
+
+.linkButton {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #2e2e2e;
+    font-size: 1.25em;
+    text-align: center;
 }
