@@ -19,7 +19,7 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 650px;
+    margin-top: 25%;
 }
 
 .linkButton {
