@@ -16,10 +16,10 @@ header {
 }
 
 #homepageMenu {
-    display: grid;
-    grid-template-columns: 33% 17% 17% 33%;
-    padding: 275px 0px;
-    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 650px;
 }
 
 .linkButton {
