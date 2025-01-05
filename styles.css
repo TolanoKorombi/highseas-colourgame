@@ -1,0 +1,6 @@
+#homepageMenu {
+    display: flex;
+}
+#homepageMenu > div {
+    width:50%;
+}
