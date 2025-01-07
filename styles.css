@@ -1,5 +1,6 @@
 body {
     margin: 0px;
+    padding: 0px;
     background-color: #5c5c5c;
     font-family:  Verdana, Geneva, Tahoma, sans-serif;
 }
@@ -8,6 +9,7 @@ a {
     color: #e2e2e2;
     text-decoration: none;
 }
+
 header {
     background-color: #2e2e2e;
     padding: 15px;
@@ -15,11 +17,10 @@ header {
     font-size: 3em;
 }
 
-#homepageMenu {
+.centeredContainer {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 15%;
 }
 
 .linkButton {
@@ -29,4 +30,13 @@ header {
     background-color: #2e2e2e;
     font-size: 1.25em;
     text-align: center;
+}
+
+#homepageMenu {
+    margin-top: 15%;
+}
+
+#gameCanvas  {
+    width: 100vw;
+    height: calc(100vh - 40px - 3em );
 }
