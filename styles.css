@@ -36,7 +36,6 @@ header {
     margin-top: 15%;
 }
 
-#gameCanvas  {
-    width: 100vw;
+#canvasContainer {
     height: calc(100vh - 40px - 3em );
 }
