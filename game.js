@@ -21,16 +21,16 @@ class Triangle {
             };
             this.coordinates = {
                 a : {
-                    x : coordinatesNew.a.x*cp,
-                    y : coordinatesNew.a.y*cp,
+                    x : coordinatesNew.a.x,
+                    y : coordinatesNew.a.y,
                 },
                 b : {
-                    x : coordinatesNew.b.x*cp,
-                    y : coordinatesNew.b.y*cp,
+                    x : coordinatesNew.b.x,
+                    y : coordinatesNew.b.y,
                 },
                 c : {
-                    x : coordinatesNew.c.x*cp,
-                    y : coordinatesNew.c.y*cp,
+                    x : coordinatesNew.c.x,
+                    y : coordinatesNew.c.y,
                 },
             };
             this.colour = {
@@ -44,10 +44,17 @@ class Triangle {
 const triangles = {
     edge : 10,
     allTriangles : [],
-    createNewTriangle : function(positionNew, coordinatesNew, colourNew) {
-        this.allTriangles.push(new Triangle(positionNew, coordinatesNew, colourNew));
+    create : function(positionNew, coordinatesNew, colourNew, update) {
+        if (update===false) {
+            this.allTriangles.push(new Triangle(positionNew, coordinatesNew, colourNew));
+        } else {
+            const triangle = this.allTriangles[update];
+            triangle.position = positionNew;
+            triangle.coordinates = coordinatesNew;
+            triangle.colour = colourNew;
+        }
     },
-    drawTriangle : function(indexPosition) {
+    draw : function(indexPosition) {
         const triangle = this.allTriangles[indexPosition];
         ctx.beginPath();
         ctx.moveTo(triangle.coordinates.c.x, triangle.coordinates.c.y);
@@ -66,7 +73,7 @@ const triangles = {
 triangles.height = Math.sqrt(Math.pow(triangles.edge, 2)-Math.pow(triangles.edge/2, 2));
 
 
-function resizeCanvas() {
+function setSize(update) {
     container.width = container.element.clientWidth;
     container.height = container.element.clientHeight;
     
@@ -81,14 +88,12 @@ function resizeCanvas() {
 
     canvas.element.width = canvas.edge;
     canvas.element.height = canvas.edge;
-}
 
-function createBoard() {
-    
+    // Creates and updates the triangles
     let columns = 1;
     let upsideDown = false;
     let indexPosition = 0;
-    const c = {x:50, y:5, rowStart:50};
+    const c = {x:50, y:10, rowStart:50};
     const rgbRow = {r:255, gb:0};
     const gbColumn = {g:rgbRow.gb,b:0,changePerColumn:255/(columns-1)};
     const newTriangle = {position:{}, coordinates:{}, colour:{}};
@@ -100,6 +105,9 @@ function createBoard() {
         gbColumn.changePerColumn = rgbRow.gb/(columns-1);
         upsideDown = false; 
         for (let column = 0; column < columns; column++) {
+            if (!(update===false)){
+                update = indexPosition;
+            }
             if (upsideDown===false){
                 newTriangle.position = {
                     row : row, 
@@ -108,16 +116,16 @@ function createBoard() {
                 }
                 newTriangle.coordinates = {
                     a : {
-                        x : c.x-triangles.edge/2,
-                        y : c.y+triangles.height
+                        x : (c.x-triangles.edge/2)*cp,
+                        y : (c.y+triangles.height)*cp
                     },
                     b : {
-                        x : c.x+triangles.edge/2,
-                        y : c.y+triangles.height
+                        x : (c.x+triangles.edge/2)*cp,
+                        y : (c.y+triangles.height)*cp
                     },
                     c : {
-                        x : c.x,
-                        y : c.y
+                        x : (c.x)*cp,
+                        y : (c.y)*cp
                     }
                 };
                 upsideDown = true; 
@@ -130,16 +138,16 @@ function createBoard() {
                 }
                 newTriangle.coordinates = {
                     a : {
-                        x : c.x-triangles.edge/2,
-                        y : c.y
+                        x : (c.x-triangles.edge/2)*cp,
+                        y : (c.y)*cp
                     },
                     b : {
-                        x : c.x+triangles.edge/2,
-                        y : c.y
+                        x : (c.x+triangles.edge/2)*cp,
+                        y : (c.y)*cp
                     },
                     c : {
-                        x : c.x,
-                        y : c.y+triangles.height
+                        x : (c.x)*cp,
+                        y : (c.y+triangles.height)*cp
                     }
                 };
                 upsideDown = false;
@@ -150,8 +158,8 @@ function createBoard() {
                 g : gbColumn.g,
                 b : gbColumn.b
             }
-            triangles.createNewTriangle(newTriangle.position, newTriangle.coordinates, newTriangle.colour);
-            triangles.drawTriangle(indexPosition);
+            triangles.create(newTriangle.position, newTriangle.coordinates, newTriangle.colour, update);
+            triangles.draw(indexPosition);
             gbColumn.g -= gbColumn.changePerColumn;
             gbColumn.b += gbColumn.changePerColumn;
             indexPosition++;
@@ -162,8 +170,8 @@ function createBoard() {
         c.rowStart -= triangles.edge/2;
         columns += 2;
     }
-
 }
 
-resizeCanvas();
-createBoard();
+setSize(false);
+
+document.getElementsByTagName("BODY")[0].onresize = function() {setSize()};
