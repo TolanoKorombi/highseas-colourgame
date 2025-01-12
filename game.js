@@ -7,6 +7,7 @@ const container = {
     width : null,
     height : null
 };
+const body = document.getElementsByTagName("body")[0]
 const ctx = canvas.element.getContext("2d");
 const rows = 7;
 const changePerRow = 255/(rows-1);
@@ -174,4 +175,4 @@ function setSize(update) {
 
 setSize(false);
 
-document.getElementsByTagName("BODY")[0].onresize = function() {setSize()};
+body.onresize = function() {setSize()};
