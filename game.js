@@ -8,7 +8,7 @@ const container = {
     height : null
 };
 const ctx = canvas.element.getContext("2d");
-const rows = 8;
+const rows = 7;
 const changePerRow = 255/(rows-1);
 let cp;
 
