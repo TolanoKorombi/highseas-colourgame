@@ -8,7 +8,7 @@ class Shape {
     }
 }
 
-class Triangle extends Shape{
+class Triangle extends Shape {
     constructor(newTriangle) {
         super(newTriangle);
         this.upsideDown = newTriangle.upsideDown;
@@ -26,19 +26,66 @@ class Triangle extends Shape{
                 y : newTriangle.coordinates.c.y
             },
             center : {
-                x: newTriangle.coordinates.c.x,
-                y: newTriangle.coordinates.center.y
+                x : newTriangle.coordinates.c.x,
+                y : newTriangle.coordinates.center.y
             }
+        };
+        this.meeple = {
+            player : null,
+            circle : null
         };
     }
 }
 
-class Circle extends Shape{
+class Circle extends Shape {
     constructor(newCircle) {
-        newCircle.colour = newCircle.owner;
         super(newCircle);
-        this.owner = newCircle.owner;
-        this.position = newCircle.position;
+        this.triangle = {
+            row : newCircle.triangle.row,
+            column : newCircle.triangle.column
+        };
+    }
+}
+
+class Player {
+    constructor(newPlayer) {
+
+        this.colour = {r:0,g:0,b:0};
+        this.colour[newPlayer] = 255;
+        this.circles = [];
+
+        const newCircle = {
+            colour : this.colour,
+            triangle : {
+                row : board.allTriangles.length-meeples.rowsPerPlayer,
+                column : 0
+            }
+        };
+
+        if (newPlayer === "r") {
+            newCircle.triangle.row = 0;
+        }else if (newPlayer === "b") {
+            newCircle.triangle.column = board.allTriangles[newCircle.triangle.row].length-1;
+        }       
+
+        let columns = 1;
+
+        for (let row = 0; row < meeples.rowsPerPlayer; row++) {
+            for (let column = 0; column < columns; column++) {
+                this.circles.push(new Circle(newCircle));
+                newCircle.triangle.column++;
+            }
+            
+            if (newPlayer === "b") {
+                newCircle.triangle.column -= columns;
+            }else {
+                newCircle.triangle.column = 0;
+            }
+            
+            newCircle.triangle.row++;
+
+            columns += 2;
+        }
     }
 }
 
@@ -149,60 +196,47 @@ board.twoThirdOfHeight = board.height*2/3;
 
 const meeples = {
     radius : board.height/3.6,
-    meeplesPerPlayer : 4, //The meeples must form a triangle therefore it must be possible to form a triangle with the specified number
-    allCircles : [],
-    draw : function(indexPosition) {
-        const circle = this.allCircles[indexPosition];
-        const triangle = board.allTriangles[circle.position];
+    rowsPerPlayer : 3, 
+    draw : function(player, circle) {
+        const meeple = players[player].circles[circle];
+        const triangle = board.allTriangles[meeple.triangle.row][meeple.triangle.column];
         ctx.beginPath();
         ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.center.y*cp, this.radius*cp, 0, 2*Math.PI);
 
-        ctx.fillStyle = `rgb(${circle.colour.r}, ${circle.colour.g}, ${circle.colour.b})`;
+        ctx.fillStyle = `rgb(${meeple.colour.r}, ${meeple.colour.g}, ${meeple.colour.b})`;
         ctx.fill();
 
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = `rgb(${circle.owner.r}, ${circle.owner.g}, ${circle.owner.b})`;
+       /* ctx.strokeStyle = `rgb(${circle.player.r}, ${circle.player.g}, ${circle.player.b})`;
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.center.y*cp, this.radius*cp+2, 0, 2*Math.PI);
+        ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.center.y*cp, this.radius*cp+2, 0, 2*Math.PI);*/
 
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "#000";
         ctx.stroke();
-    },
+    }, 
+    /*drawInit : function(center, colour) {
+        ctx.beginPath();
+        ctx.arc(center.x*cp, center.y*cp, this.radius*cp, 0, 2*Math.PI);
+
+        ctx.fillStyle = `rgb(${colour.r}, ${colour.g}, ${colour.b})`;
+        ctx.fill();
+        ctx.stroke();
+    },*/
     create : function() {
-        const newCircle = {owner:{}};
-        let playerBase = [0, board.allTriangles.length-board.allTriangles.at(-1).position.column-1, board.allTriangles.length-1];
-        let positionChange = 0;
-        let baseRow;
-
-        for (let player = 0; player < 3; player++){
-            positionChange = 0;
-            for (let meeple = 0; meeple < this.meeplesPerPlayer; meeple++){
-                newCircle.position = playerBase[player]+positionChange;
-                newCircle.owner = {r : 255, g : 0, b : 0};
-                this.draw(this.allCircles.push(new Circle(newCircle))-1);
-
-                if (player === 0 || player === 1) {
-                    if (player === 1 && meeple===baseRow){
-
-                    } else{
-                        positionChange++;
-                    }
-                }
-
-            }
-            if (player===0){
-                baseRow = board.allTriangles[newCircle.position].position.column;
+        for (let player in players){
+            players[player] = new Player(player);
+            for (let circle in players[player].circles) {
+                this.draw(player, circle);
             }
         }
     }
 };
 
-
-
-
+const players = {
+    r : null,
+    g : null,
+    b : null,
+}
 
 function resize() {
     canvas.create();
@@ -211,8 +245,10 @@ function resize() {
             board.draw(row, column)
         }
     }
-    for (let circle in meeples.allCircles) {
-        meeples.draw(circle);
+    for (let player in players){
+        for (let circle in players[player].circles) {
+            meeples.draw(player, circle)
+        }
     }
 }
 
@@ -220,8 +256,6 @@ function resize() {
 canvas.create();
 board.create();
 
-
-//meeples.create();
+meeples.create();
 
 window.addEventListener("resize", resize);
-
