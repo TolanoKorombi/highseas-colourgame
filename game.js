@@ -186,6 +186,9 @@ const svg = {
         this.element.setAttribute("width", this.edge);
         this.element.setAttribute("height", this.edge);
 
+        //this.element.width = this.edge;
+        //this.element.height = this.edge;
+
     }
 };
 
@@ -427,8 +430,8 @@ function binaryTriangleSearch(arr, x, y) {
 }
 
 function resize() {
-    canvas.create();
-    for (let row in board.allTriangles) {
+    svg.create();
+    /*for (let row in board.allTriangles) {
         for (let column in board.allTriangles[row]){
             board.draw(row, column)
         }
@@ -437,7 +440,7 @@ function resize() {
         for (let circle in players[player].circles) {
             meeples.draw(player, circle)
         }
-    }
+    }*/
 }
 
 function endGame(winner) {  
@@ -478,36 +481,14 @@ function getInput(e) {
 
 
 
-const canvas = {
-    element : document.getElementById("gameCanvas"),
-    edge : null,
-    create : function() {
-        container.width = container.element.clientWidth;
-        container.height = container.element.clientHeight;
-    
-        //Makes the Canvas a square which edges are as long as the shortest edge of the container
-        if (container.width<container.height) {
-            this.edge = container.width;
-        } else {
-            this.edge = container.height;
-        }
-
-        this.element.width = this.edge;
-        this.element.height = this.edge;
-
-    }
-};
-
 //Start of initalization and event adding 
-//svg.create();
-/*board.create();
+svg.create();
+//board.create();
 
-meeples.create();
+//meeples.create();
 
 window.addEventListener("resize", resize);
 
-canvas.element.addEventListener("click", getInput);
+/*canvas.element.addEventListener("click", getInput);
 canvas.element.addEventListener("ontouch", getInput);
-*/    
-
-canvas.create;
+*/

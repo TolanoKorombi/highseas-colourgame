@@ -36,6 +36,6 @@ header {
     margin-top: 15%;
 }
 
-#canvasContainer {
+#svgContainer {
     height: calc(100vh - 40px - 3em );
 }
