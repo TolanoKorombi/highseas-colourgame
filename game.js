@@ -14,20 +14,20 @@ class Triangle extends Shape {
         this.upsideDown = newTriangle.upsideDown;
         this.coordinates = {
             a: {
-                x : newTriangle.coordinates.a.x,
-                y : newTriangle.coordinates.a.y
+                x : newTriangle.a.x,
+                y : newTriangle.a.y
             },
             b : {
-                x : newTriangle.coordinates.b.x,
-                y : newTriangle.coordinates.b.y
+                x : newTriangle.b.x,
+                y : newTriangle.b.y
             },
             c : {
-                x : newTriangle.coordinates.c.x,
-                y : newTriangle.coordinates.c.y
+                x : newTriangle.c.x,
+                y : newTriangle.c.y
             },
             center : {
-                x : newTriangle.coordinates.c.x,
-                y : newTriangle.coordinates.center.y
+                x : newTriangle.c.x,
+                y : newTriangle.centerY
             }
         };
         this.meeple = {
@@ -35,8 +35,8 @@ class Triangle extends Shape {
             circle : null
         };
         this.position = {
-            row : newTriangle.position.row,
-            column : newTriangle.position.column
+            row : newTriangle.row,
+            column : newTriangle.column
         };
     }
 }
@@ -223,7 +223,8 @@ const board = {
         const c = {x:50, y:10, rowStart:50};
         const rgbRow = {r:255, gb:0};
         const gbColumn = {g:rgbRow.gb,b:0,changePerColumn:255/(columns-1)};
-        const newTriangle = {position:{}, coordinates:{a:{},b:{},c:{},center:{}}, colour:{}};
+        const newTriangle = {a:{}, b:{}, c:{}};
+        let triangleElement;
         for (let row = 0; row < this.rows; row++) {
             c.x = c.rowStart;
             gbColumn.g = rgbRow.gb;
@@ -232,32 +233,37 @@ const board = {
             upsideDown = false;
             this.allTriangles.push([]);
             for (let column = 0; column < columns; column++) {
-                newTriangle.upsideDown = upsideDown;
-                newTriangle.colour.r = rgbRow.r;
-                newTriangle.colour.g = gbColumn.g;
-                newTriangle.colour.b = gbColumn.b;
-                newTriangle.coordinates.a.x = c.x-this.edge/2;
-                newTriangle.coordinates.b.x = c.x+this.edge/2;
-                newTriangle.coordinates.c.x = c.x;
-                newTriangle.position.row = row;
-                newTriangle.position.column = column;
+                
+                
+
+                newTriangle.a.x = c.x-this.edge/2;
+                newTriangle.b.x = c.x+this.edge/2;  
+                newTriangle.c.x = c.x;
 
                 if (upsideDown===false) {
-                    newTriangle.coordinates.a.y = c.y+this.height;
-                    newTriangle.coordinates.b.y = c.y+this.height;
-                    newTriangle.coordinates.c.y = c.y;
-                    newTriangle.coordinates.center.y = c.y+this.twoThirdOfHeight;
+                    newTriangle.a.y = c.y+this.height;
+                    newTriangle.b.y = c.y+this.height;
+                    newTriangle.c.y = c.y;
+                    newTriangle.centerY = c.y+this.twoThirdOfHeight;
                     upsideDown = true; 
                 }
                 else {
-                    newTriangle.coordinates.a.y = c.y;
-                    newTriangle.coordinates.b.y = c.y;
-                    newTriangle.coordinates.c.y = c.y+this.height;
-                    newTriangle.coordinates.center.y = c.y+this.height-this.twoThirdOfHeight;
+                    newTriangle.a.y = c.y;
+                    newTriangle.b.y = c.y;
+                    newTriangle.c.y = c.y+this.height;
+                    newTriangle.centerY = c.y+this.height-this.twoThirdOfHeight;
                     upsideDown = false;
                 }            
 
-                this.draw(row, this.allTriangles[row].push(new Triangle(newTriangle))-1);
+                svg.element.appendChild(document.createElementNS("http://www.w3.org/2000/svg" ,"polygon"));
+                triangleElement = svg.element.lastChild;
+                triangleElement.setAttribute("fill", `rgb(${rgbRow.r}, ${gbColumn.g}, ${gbColumn.b})`);
+                triangleElement.setAttribute("stroke-width", "0.12");
+                triangleElement.setAttribute("stroke", "#000000");
+                triangleElement.setAttribute("points", `${newTriangle.c.x},${newTriangle.c.y} ${newTriangle.b.x},${newTriangle.b.y} ${newTriangle.a.x},${newTriangle.a.y}`);
+                triangleElement.setAttribute("row", row);
+                triangleElement.setAttribute("column", column);
+                
                 gbColumn.g -= gbColumn.changePerColumn;
                 gbColumn.b += gbColumn.changePerColumn;
                 c.x += this.edge/2;
@@ -285,7 +291,7 @@ const meeples = {
         const meeple = pl.circles[circle];
         const triangle = board.allTriangles[meeple.triangle.row][meeple.triangle.column];
         ctx.beginPath();
-        ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.center.y*cp, this.radius*cp, 0, 2*Math.PI);
+        ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.centerY*cp, this.radius*cp, 0, 2*Math.PI);
 
         ctx.fillStyle = `rgb(${meeple.colour.r}, ${meeple.colour.g}, ${meeple.colour.b})`;
         ctx.fill();
@@ -296,7 +302,7 @@ const meeples = {
         
 
         ctx.beginPath();
-        ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.center.y*cp, this.radius*cp+ctx.lineWidth, 0, 2*Math.PI);
+        ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.centerY*cp, this.radius*cp+ctx.lineWidth, 0, 2*Math.PI);
 
         ctx.lineWidth = ctx.lineWidth/2;
         ctx.strokeStyle = "#000";
@@ -483,7 +489,7 @@ function getInput(e) {
 
 //Start of initalization and event adding 
 svg.create();
-//board.create();
+board.create(); 
 
 //meeples.create();
 
