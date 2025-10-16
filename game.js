@@ -1,9 +1,9 @@
 class Shape {
     constructor(newShape) {
-        this.colour = {
-            r : newShape.colour.r,
-            g : newShape.colour.g,
-            b : newShape.colour.b
+        this.color = {
+            r : newShape.color.r,
+            g : newShape.color.g,
+            b : newShape.color.b
         };
     }
 }
@@ -111,24 +111,24 @@ class Circle extends Shape {
 class Player {
     constructor(newPlayer) {
 
-        let colour;
+        let color;
 
         if (newPlayer === "0") {
-            colour = "r";
+            color = "r";
         } else if (newPlayer === "1") {
-            colour = "g";
+            color = "g";
         } else {
-            colour = "b";
+            color = "b";
         }
 
-        this.colour = {r:0,g:0,b:0};
-        this.colour[colour] = 255;
+        this.color = {r:0,g:0,b:0};
+        this.color[color] = 255;
         this.circles = [];
 
         const newCircle = {
-            colour : this.colour,
+            color : this.color,
             triangle : {
-                row : board.allTriangles.length-meeples.rowsPerPlayer,
+                row : board.rows-meeples.rowsPerPlayer,
                 column : 0
             },
             position : {
@@ -140,18 +140,33 @@ class Player {
         if (newPlayer === "0") {
             newCircle.triangle.row = 0;
         }else if (newPlayer === "2") {
-            newCircle.triangle.column = board.allTriangles[newCircle.triangle.row].length-1;
+            newCircle.triangle.column = (newCircle.triangle.row)*2;
         }       
 
         let columns = 1;
         let triangle;
+        let centerY;
+        let circleElement;
 
         for (let row = 0; row < meeples.rowsPerPlayer; row++) {
-            for (let column = 0; column < columns; column++) {
-                this.circles.push(new Circle(newCircle));
-                triangle = board.allTriangles[newCircle.triangle.row][newCircle.triangle.column];
-                triangle.meeple.player = newCircle.position.player;
-                triangle.meeple.circle = newCircle.position.circle;
+            for (let column = 0; column < columns; column++) { 
+                triangle = document.getElementById(`${newCircle.triangle.row},${newCircle.triangle.column}`).points
+
+                centerY = 0;
+                for (let point = 0; point < triangle.length; point++) {
+                    centerY += triangle[point].y;
+                }
+                centerY = centerY/3;
+
+                circleElement = svg.element.appendChild(document.createElementNS("http://www.w3.org/2000/svg" ,"circle"));
+                circleElement.setAttribute("id", `${newCircle.position.player},${newCircle.triangle.row},${newCircle.triangle.column}`);
+                circleElement.setAttribute("r", meeples.radius);
+                circleElement.setAttribute("cx", triangle[0].x);
+                circleElement.setAttribute("cy", centerY);
+                circleElement.setAttribute("fill", `rgb(${newCircle.color.r}, ${newCircle.color.g}, ${newCircle.color.b})`);
+                circleElement.setAttribute("stroke-width", svg.strokeWidth);
+                circleElement.setAttribute("stroke", svg.strokeColor);
+                
                 newCircle.triangle.column++;
                 newCircle.position.circle++;
             }
@@ -172,6 +187,8 @@ class Player {
 const svg = {
     element : document.getElementById("gameSVG"),
     edge : null,
+    strokeWidth : 0.12,
+    strokeColor : "#000",
     create : function() {
         container.width = container.element.clientWidth;
         container.height = container.element.clientHeight;
@@ -185,9 +202,6 @@ const svg = {
 
         this.element.setAttribute("width", this.edge);
         this.element.setAttribute("height", this.edge);
-
-        //this.element.width = this.edge;
-        //this.element.height = this.edge;
 
     }
 };
@@ -203,20 +217,7 @@ const absoluteValueM = Math.sqrt(3)
 const board = {
     edge : 12,
     rows : 7,
-    allTriangles : [],
     selected: null,
-    draw : function(row, column,) {
-        const triangle = this.allTriangles[row][column];
-        ctx.beginPath();
-        ctx.moveTo(triangle.coordinates.c.x*cp, triangle.coordinates.c.y*cp);
-        ctx.lineTo(triangle.coordinates.b.x*cp, triangle.coordinates.b.y*cp);
-        ctx.lineTo(triangle.coordinates.a.x*cp, triangle.coordinates.a.y*cp);
-        ctx.closePath();
-        
-        ctx.fillStyle = `rgb(${triangle.colour.r}, ${triangle.colour.g}, ${triangle.colour.b})`;
-        ctx.fill();
-        ctx.stroke();
-    },
     create : function() {
         let columns = 1;
         let upsideDown = false;
@@ -231,11 +232,8 @@ const board = {
             gbColumn.b = 0;
             gbColumn.changePerColumn = rgbRow.gb/(columns-1);
             upsideDown = false;
-            this.allTriangles.push([]);
             for (let column = 0; column < columns; column++) {
                 
-                
-
                 newTriangle.a.x = c.x-this.edge/2;
                 newTriangle.b.x = c.x+this.edge/2;  
                 newTriangle.c.x = c.x;
@@ -255,14 +253,12 @@ const board = {
                     upsideDown = false;
                 }            
 
-                svg.element.appendChild(document.createElementNS("http://www.w3.org/2000/svg" ,"polygon"));
-                triangleElement = svg.element.lastChild;
+                triangleElement = svg.element.appendChild(document.createElementNS("http://www.w3.org/2000/svg" ,"polygon"));
                 triangleElement.setAttribute("fill", `rgb(${rgbRow.r}, ${gbColumn.g}, ${gbColumn.b})`);
-                triangleElement.setAttribute("stroke-width", "0.12");
-                triangleElement.setAttribute("stroke", "#000000");
+                triangleElement.setAttribute("stroke-width", svg.strokeWidth);
+                triangleElement.setAttribute("stroke", svg.strokeColor);
                 triangleElement.setAttribute("points", `${newTriangle.c.x},${newTriangle.c.y} ${newTriangle.b.x},${newTriangle.b.y} ${newTriangle.a.x},${newTriangle.a.y}`);
-                triangleElement.setAttribute("row", row);
-                triangleElement.setAttribute("column", column);
+                triangleElement.setAttribute("id", `${row},${column}`);
                 
                 gbColumn.g -= gbColumn.changePerColumn;
                 gbColumn.b += gbColumn.changePerColumn;
@@ -293,11 +289,11 @@ const meeples = {
         ctx.beginPath();
         ctx.arc(triangle.coordinates.center.x*cp, triangle.coordinates.centerY*cp, this.radius*cp, 0, 2*Math.PI);
 
-        ctx.fillStyle = `rgb(${meeple.colour.r}, ${meeple.colour.g}, ${meeple.colour.b})`;
+        ctx.fillStyle = `rgb(${meeple.color.r}, ${meeple.color.g}, ${meeple.color.b})`;
         ctx.fill();
 
         ctx.lineWidth = ctx.lineWidth*2;
-        ctx.strokeStyle = `rgb(${pl.colour.r}, ${pl.colour.g}, ${pl.colour.b})`;
+        ctx.strokeStyle = `rgb(${pl.color.r}, ${pl.color.g}, ${pl.color.b})`;
         ctx.stroke();
         
 
@@ -311,27 +307,24 @@ const meeples = {
     create : function() {
         for (let player in players){
             players[player] = new Player(player);
-            for (let circle in players[player].circles) {
-                this.draw(player, circle);
-            }
         }
     },
     beat : function(triangle, attackingMeeple) {
         const defendingMeeple = players[triangle.meeple.player].circles[triangle.meeple.circle];
-        const resultColour = { r : 0, g : 0, b: 0};
+        const resultColor = { r : 0, g : 0, b: 0};
         const winner = {player: null, value: 0}
 
-        for (let colour in resultColour) {
-            resultColour[colour] = (defendingMeeple.colour[colour] + attackingMeeple.colour[colour] + triangle.colour[colour])/3;
-            if (resultColour[colour]>winner.value) {
-                winner.player = colour;
-                winner.value = resultColour[colour];
-            } else if (resultColour[colour] === winner.value) { //Problem draw between defender and uninvolved results in ein of attacker
+        for (let color in resultColor) {
+            resultColor[color] = (defendingMeeple.color[color] + attackingMeeple.color[color] + triangle.color[color])/3;
+            if (resultColor[color]>winner.value) {
+                winner.player = color;
+                winner.value = resultColor[color];
+            } else if (resultColor[color] === winner.value) { //Problem draw between defender and uninvolved results in ein of attacker
                 winner.player = attackingMeeple.position.player;
-                winner.value = resultColour[colour];
-            } /*else if (resultColour[colour] === winner.value && defendingMeeple.colour[colour]) {
+                winner.value = resultColor[color];
+            } /*else if (resultColor[color] === winner.value && defendingMeeple.color[color]) {
                 winner.player = defendingMeeple.position.player;
-                winner.value = resultColour[colour];
+                winner.value = resultColor[color];
             }*/
         }
         
@@ -344,18 +337,18 @@ const meeples = {
         }
 
         if (winner.player === defendingMeeple.position.player) {
-            players[winner.player].circles[defendingMeeple.position.circle].colour = resultColour;
+            players[winner.player].circles[defendingMeeple.position.circle].color = resultColor;
             attackingMeeple.delete();
             defendingMeeple.move(board.selected);
 
         } else if (winner.player === attackingMeeple.position.player) {
-            players[winner.player].circles[attackingMeeple.position.circle].colour = resultColour;
+            players[winner.player].circles[attackingMeeple.position.circle].color = resultColor;
             defendingMeeple.delete();
             attackingMeeple.move(board.selected);
 
         } else {
             const newCircle = {
-                colour : resultColour,
+                color : resultColor,
                 position : {
                     player : winner.player,
                     circle : players[winner.player].circles.length
@@ -435,18 +428,10 @@ function binaryTriangleSearch(arr, x, y) {
     return false;
 }
 
-function resize() {
-    svg.create();
-    /*for (let row in board.allTriangles) {
-        for (let column in board.allTriangles[row]){
-            board.draw(row, column)
-        }
-    }
-    for (let player in players){
-        for (let circle in players[player].circles) {
-            meeples.draw(player, circle)
-        }
-    }*/
+//window.addEventListener("resize", svg.create()); doesn't work therefore this function is necessary
+//TO DO: find a better way to add the event listener
+function resize() { 
+    svg.create();   
 }
 
 function endGame(winner) {  
@@ -462,7 +447,7 @@ function endGame(winner) {
     canvas.create();
     ctx.beginPath();
     ctx.font = `${20*cp}px Verdana`;
-    ctx.fillStyle = `rgb(${players[winner].colour.r}, ${players[winner].colour.g}, ${players[winner].colour.b})`
+    ctx.fillStyle = `rgb(${players[winner].color.r}, ${players[winner].color.g}, ${players[winner].color.b})`
     ctx.fillText(`${winnerName} won!`, 10*cp, 10*cp);
 }
 
@@ -491,10 +476,14 @@ function getInput(e) {
 svg.create();
 board.create(); 
 
-//meeples.create();
+meeples.create();
 
 window.addEventListener("resize", resize);
+
+
 
 /*canvas.element.addEventListener("click", getInput);
 canvas.element.addEventListener("ontouch", getInput);
 */
+
+//let test = 
