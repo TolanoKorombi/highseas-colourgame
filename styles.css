@@ -14,7 +14,7 @@ header {
     background-color: #2e2e2e;
     padding: 15px;
     text-align: center;
-    font-size: 3em;
+    font-size: 3rem;
 }
 
 .centeredContainer {
@@ -28,8 +28,21 @@ header {
     padding: 10px;
     border-radius: 10px;
     background-color: #2e2e2e;
-    font-size: 1.25em;
+    font-size: 1.25rem;
     text-align: center;
+}
+
+.mainContent {
+    display: inline;
+}
+
+.score {
+    font-size: 2.75rem;
+    padding: 0.25rem;
+    margin: 0rem;
+    border-top: 0.45rem solid #2e2e2e;
+    border-bottom: 0.45rem solid #2e2e2e;
+    border-radius: 2rem;
 }
 
 #homepageMenu {
@@ -38,4 +51,22 @@ header {
 
 #svgContainer {
     height: calc(100vh - 40px - 3em );
+}
+
+/*#scoreDisplay {
+    border-left: 0.45rem solid #2e2e2e;
+    border-right: 0.45rem solid #2e2e2e;
+    border-radius: 2rem;
+}*/
+
+#r {
+    color: #ff0000;
+}
+
+#g {
+    color: #00ff00;
+}
+
+#b {
+    color: #0000ff;
 }

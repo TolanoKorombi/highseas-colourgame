@@ -107,6 +107,7 @@ class Circle extends Shape {
         playerCircles.pop();
     }
 }
+// The classes Shape, Triangle and Circle are to be removed; check if used somwhere before removing
 
 class Player {
     constructor(newPlayer) {
@@ -166,6 +167,7 @@ class Player {
                 circleElement.setAttribute("fill", `rgb(${newCircle.color.r}, ${newCircle.color.g}, ${newCircle.color.b})`);
                 circleElement.setAttribute("stroke-width", svg.strokeWidth);
                 circleElement.setAttribute("stroke", svg.strokeColor);
+                clickTouch(circleElement, moveStart);
                 
                 newCircle.triangle.column++;
                 newCircle.position.circle++;
@@ -259,6 +261,7 @@ const board = {
                 triangleElement.setAttribute("stroke", svg.strokeColor);
                 triangleElement.setAttribute("points", `${newTriangle.c.x},${newTriangle.c.y} ${newTriangle.b.x},${newTriangle.b.y} ${newTriangle.a.x},${newTriangle.a.y}`);
                 triangleElement.setAttribute("id", `${row},${column}`);
+                //clickTouch(triangleElement, );
                 
                 gbColumn.g -= gbColumn.changePerColumn;
                 gbColumn.b += gbColumn.changePerColumn;
@@ -280,9 +283,10 @@ board.twoThirdOfHeight = board.height*2/3;
 
 const meeples = {
     radius : board.height/3.8,
+    radiusGrowth : 1.125,
     rowsPerPlayer : 3, 
     selected : null,
-    draw : function(player, circle) {
+    draw : function(player, circle) {  //to be removed, only kept for reference
         const pl = players[player];
         const meeple = pl.circles[circle];
         const triangle = board.allTriangles[meeple.triangle.row][meeple.triangle.column];
@@ -366,8 +370,22 @@ const meeples = {
     }
 };
 
+const gameState = {
+    player : 0,
+    phase : true,
+    playerChange : function() {
+        if (this.player > 2) {
+            this.player = 0;
+        } else {
+            this.player++;
+        }
+    },
+    phaseChange : function () {
+        this.phase = !(this.phase);
+    }
+}
+
 const players = [null, null, null];
-let activePlayer = 0;
 
 function deleteArrayElement(arr, index) {
      
@@ -428,6 +446,26 @@ function binaryTriangleSearch(arr, x, y) {
     return false;
 }
 
+//This function is meant to avoid always writing everything twice for click and touch
+function clickTouch(elmnt, func) {
+    elmnt.addEventListener("click", func)
+    elmnt.addEventListener("ontouch", func)
+}
+
+function moveStart() {
+        if (this.id[0] == gameState.player) {
+            if (gameState.phase) {
+                meeples.selected = this;
+                this.setAttribute("r", meeples.radius*meeples.radiusGrowth);
+                gameState.phaseChange();
+            }
+        }
+}
+
+function moveEnd() {
+
+}
+
 //window.addEventListener("resize", svg.create()); doesn't work therefore this function is necessary
 //TO DO: find a better way to add the event listener
 function resize() { 
@@ -486,4 +524,8 @@ window.addEventListener("resize", resize);
 canvas.element.addEventListener("ontouch", getInput);
 */
 
-//let test = 
+/*function t() {
+    this.setAttribute("fill", "rgb(0, 0, 0)")
+}
+
+document.getElementById("0,0").addEventListener("click", t)*/
