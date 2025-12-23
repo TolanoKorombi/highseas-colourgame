@@ -146,24 +146,17 @@ class Player {
 
         let columns = 1;
         let triangle;
-        let centerY;
         let circleElement;
 
         for (let row = 0; row < meeples.rowsPerPlayer; row++) {
             for (let column = 0; column < columns; column++) { 
                 triangle = document.getElementById(`${newCircle.triangle.row},${newCircle.triangle.column}`).points
 
-                centerY = 0;
-                for (let point = 0; point < triangle.length; point++) {
-                    centerY += triangle[point].y;
-                }
-                centerY = centerY/3;
-
                 circleElement = svg.element.appendChild(document.createElementNS("http://www.w3.org/2000/svg" ,"circle"));
                 circleElement.setAttribute("id", `${newCircle.position.player},${newCircle.triangle.row},${newCircle.triangle.column}`);
                 circleElement.setAttribute("r", meeples.radius);
                 circleElement.setAttribute("cx", triangle[0].x);
-                circleElement.setAttribute("cy", centerY);
+                circleElement.setAttribute("cy", centerY(triangle));
                 circleElement.setAttribute("fill", `rgb(${newCircle.color.r}, ${newCircle.color.g}, ${newCircle.color.b})`);
                 circleElement.setAttribute("stroke-width", svg.strokeWidth);
                 circleElement.setAttribute("stroke", svg.strokeColor);
@@ -261,7 +254,7 @@ const board = {
                 triangleElement.setAttribute("stroke", svg.strokeColor);
                 triangleElement.setAttribute("points", `${newTriangle.c.x},${newTriangle.c.y} ${newTriangle.b.x},${newTriangle.b.y} ${newTriangle.a.x},${newTriangle.a.y}`);
                 triangleElement.setAttribute("id", `${row},${column}`);
-                //clickTouch(triangleElement, );
+                clickTouch(triangleElement, moveEnd);
                 
                 gbColumn.g -= gbColumn.changePerColumn;
                 gbColumn.b += gbColumn.changePerColumn;
@@ -372,16 +365,12 @@ const meeples = {
 
 const gameState = {
     player : 0,
-    phase : true,
-    playerChange : function() {
-        if (this.player > 2) {
+    change : function () {
+        if (this.player === 2) {
             this.player = 0;
         } else {
             this.player++;
         }
-    },
-    phaseChange : function () {
-        this.phase = !(this.phase);
     }
 }
 
@@ -446,24 +435,38 @@ function binaryTriangleSearch(arr, x, y) {
     return false;
 }
 
-//This function is meant to avoid always writing everything twice for click and touch
+//This function is meant to avoid writing everything twice for click and touch
 function clickTouch(elmnt, func) {
     elmnt.addEventListener("click", func)
     elmnt.addEventListener("ontouch", func)
 }
 
+function centerY(triangle) {
+    cy = 0;
+        for (let point = 0; point < triangle.length; point++) {
+            cy += triangle[point].y;
+        }
+    return cy/3;
+}
+
 function moveStart() {
         if (this.id[0] == gameState.player) {
-            if (gameState.phase) {
-                meeples.selected = this;
-                this.setAttribute("r", meeples.radius*meeples.radiusGrowth);
-                gameState.phaseChange();
+            if (meeples.selected != null) {
+                meeples.selected.setAttribute("r", meeples.radius);
             }
+            meeples.selected = this;
+            this.setAttribute("r", meeples.radius*meeples.radiusGrowth);
         }
 }
 
 function moveEnd() {
-
+    if (meeples.selected != null) {
+        meeples.selected.setAttribute("cx", `${this.points[0].x}`); 
+        meeples.selected.setAttribute("cy", centerY(this.points));
+        meeples.selected.setAttribute("r", meeples.radius);
+        meeples.selected = null;
+        gameState.change();
+    }
 }
 
 //window.addEventListener("resize", svg.create()); doesn't work therefore this function is necessary
