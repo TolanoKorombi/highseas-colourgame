@@ -530,5 +530,5 @@ canvas.element.addEventListener("ontouch", getInput);
 /*function t() {
     this.setAttribute("fill", "rgb(0, 0, 0)")
 }
-
+test
 document.getElementById("0,0").addEventListener("click", t)*/
