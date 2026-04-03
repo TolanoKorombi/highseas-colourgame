@@ -161,7 +161,8 @@ class Player {
                 circleElement.setAttribute("stroke-width", svg.strokeWidth);
                 circleElement.setAttribute("stroke", svg.strokeColor);
                 clickTouch(circleElement, moveStart);
-                
+                clickTouch(circleElement, moveEnd);
+                                
                 newCircle.triangle.column++;
                 newCircle.position.circle++;
             }
@@ -461,9 +462,20 @@ function moveStart() {
 
 function moveEnd() {
     if (meeples.selected != null) {
-        meeples.selected.setAttribute("cx", `${this.points[0].x}`); 
-        meeples.selected.setAttribute("cy", centerY(this.points));
+        var selectedTriangle;
+        if (this.tagName === "polygon") {
+            selectedTriangle = this;
+        }
+        else if (this.tagName === "circle" && this.id[0] != meeples.selected.id[0]) {
+            selectedTriangle = document.getElementById(`${this.id.slice(2)}`);
+        }
+        else {
+            return;
+        }
+        meeples.selected.setAttribute("cx", `${selectedTriangle.points[0].x}`); 
+        meeples.selected.setAttribute("cy", centerY(selectedTriangle.points));
         meeples.selected.setAttribute("r", meeples.radius);
+        meeples.selected.setAttribute("id", `${meeples.selected.id[0]},${selectedTriangle.id}`)
         meeples.selected = null;
         gameState.change();
     }
@@ -530,5 +542,5 @@ canvas.element.addEventListener("ontouch", getInput);
 /*function t() {
     this.setAttribute("fill", "rgb(0, 0, 0)")
 }
-test
+
 document.getElementById("0,0").addEventListener("click", t)*/
