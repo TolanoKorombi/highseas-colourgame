@@ -160,8 +160,8 @@ class Player {
                 circleElement.setAttribute("fill", `rgb(${newCircle.color.r}, ${newCircle.color.g}, ${newCircle.color.b})`);
                 circleElement.setAttribute("stroke-width", svg.strokeWidth);
                 circleElement.setAttribute("stroke", svg.strokeColor);
-                clickTouch(circleElement, moveStart);
                 clickTouch(circleElement, moveEnd);
+                clickTouch(circleElement, moveStart);
                                 
                 newCircle.triangle.column++;
                 newCircle.position.circle++;
@@ -377,6 +377,11 @@ const gameState = {
 
 const players = [null, null, null];
 
+function isEven(n) {
+    let result = (n & 1 == 1) ? false : true; 
+    return result;
+}
+
 function deleteArrayElement(arr, index) {
      
 }
@@ -450,6 +455,27 @@ function centerY(triangle) {
     return cy/3;
 }
 
+function isAdjacent(staTriangle, selTriangle) {
+    const startTriangle = {
+        row : Number(staTriangle.id[0]),
+        column : Number(staTriangle.id[2])
+    };
+    const selectedTriangle = {
+        row : Number(selTriangle.id[0]),
+        column : Number(selTriangle.id[2]) 
+    };
+
+
+    if ( (startTriangle.row === selectedTriangle.row && (startTriangle.column === selectedTriangle.column + 1 || startTriangle.column === selectedTriangle.column - 1)) ||     //checks if the selected triangle is next to the start triangle
+    (startTriangle.row === selectedTriangle.row - 1 && isEven(startTriangle.column) && startTriangle.column === selectedTriangle.column - 1) ||                              //checks if the selected triangle is below to the start triangle
+    (startTriangle.row === selectedTriangle.row + 1 && !(isEven(startTriangle.column)) && startTriangle.column === selectedTriangle.column + 1)) {                           //checks if the selected triangle is above to the start triangle
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 function moveStart() {
         if (this.id[0] == gameState.player) {
             if (meeples.selected != null) {
@@ -462,7 +488,7 @@ function moveStart() {
 
 function moveEnd() {
     if (meeples.selected != null) {
-        var selectedTriangle;
+        let selectedTriangle;
         if (this.tagName === "polygon") {
             selectedTriangle = this;
         }
@@ -472,12 +498,16 @@ function moveEnd() {
         else {
             return;
         }
-        meeples.selected.setAttribute("cx", `${selectedTriangle.points[0].x}`); 
-        meeples.selected.setAttribute("cy", centerY(selectedTriangle.points));
-        meeples.selected.setAttribute("r", meeples.radius);
-        meeples.selected.setAttribute("id", `${meeples.selected.id[0]},${selectedTriangle.id}`)
-        meeples.selected = null;
-        gameState.change();
+
+        const startTriangle = document.getElementById(meeples.selected.id.slice(2));
+        if (isAdjacent(startTriangle, selectedTriangle)) {
+            meeples.selected.setAttribute("cx", `${selectedTriangle.points[0].x}`); 
+            meeples.selected.setAttribute("cy", centerY(selectedTriangle.points));
+            meeples.selected.setAttribute("r", meeples.radius);
+            meeples.selected.setAttribute("id", `${meeples.selected.id[0]},${selectedTriangle.id}`)
+            meeples.selected = null;
+            gameState.change();
+        }
     }
 }
 
@@ -535,12 +565,3 @@ window.addEventListener("resize", resize);
 
 
 
-/*canvas.element.addEventListener("click", getInput);
-canvas.element.addEventListener("ontouch", getInput);
-*/
-
-/*function t() {
-    this.setAttribute("fill", "rgb(0, 0, 0)")
-}
-
-document.getElementById("0,0").addEventListener("click", t)*/
